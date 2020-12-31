@@ -1,28 +1,67 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Container>
+      <ChatWindow>
+        <ChatMessage v-for="(mesasage, i) in messages"
+        :key="i">
+        </ChatMessage>
+      </ChatWindow>
+    </Container>
   </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
 
+<script>
+import ChatMessage from './components/ChatMessage.vue'
+import Container from './components/Container.vue'
+import ChatWindow from './components/ChatWindow.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Container,
+    ChatMessage,
+    ChatWindow
+  },
+  data(){
+    return{
+      messages:[
+        {username:'', datetime:'', text:''}
+      ]
+    }
+  },
+  methods:{
+    getUserData(){
+      this.axios.get("http://37.77.104.246/api/chat/getmessages.php")
+      .then( (response)=>{
+          this.username=response.data.author;
+          this.text=response.data.text;
+          this.datetime=response.data.datetime;
+        }
+    )
+  },
+  sendmessage(){
+    this.axios.post('http://37.77.104.246/api/chat/sendmessage.php', {
+      author: this.username,
+      text: this.text,
+      datetime: this.datetime,
+    })
+    .then((response) => {
+        this.messages = response.data;
+    })
   }
+},
+mounted(){
+  this.getUserData();
+  this.sendmessage();
 }
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+
+body {
+  margin: 0;
+  background-color: #f9f9fa;
 }
+
 </style>
